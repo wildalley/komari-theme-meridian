@@ -7,6 +7,7 @@ os.chdir(root)
 
 with zipfile.ZipFile("meridian.zip", "w", zipfile.ZIP_DEFLATED) as zf:
     zf.write("komari-theme.json", "meridian/komari-theme.json")
+    zf.write("preview.jpg", "meridian/preview.jpg")
     for base, _, files in os.walk("dist"):
         for name in sorted(files):
             p = os.path.join(base, name)

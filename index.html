@@ -252,8 +252,7 @@ button, input, select { font: inherit; color: inherit; }
 .topbar {
   flex: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: nowrap; min-height: 48px; box-sizing: border-box;
   padding-inline: 16px; padding-block: 6px; background: var(--panel); border-bottom: 1px solid var(--line);
-  font-family: var(--f-mono); font-size: 13px; position: relative; z-index: 5;
-  overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;
+  font-family: var(--f-mono); font-size: 13px; position: relative; z-index: 20;
 }
 .topbar::-webkit-scrollbar { display: none; }
 .crumb { display: flex; gap: 8px; align-items: center; min-width: 0; flex-shrink: 0; white-space: nowrap; }
@@ -396,6 +395,20 @@ button, input, select { font: inherit; color: inherit; }
 .chips button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
 .chips button .c { opacity: 0.75; margin-left: 4px; }
 .sortsel { height: 30px; padding: 0 6px; border: 1px solid var(--line); background: var(--panel); font-size: 11.5px; }
+.dd { position: relative; display: inline-flex; }
+.dd-btn { display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 84px; cursor: pointer; text-align: left; }
+.dd-btn i { font-style: normal; font-size: 10px; color: var(--ink-3); }
+.dd-btn[aria-expanded="true"] { border-color: var(--accent); }
+.dd-btn[aria-expanded="true"] i { color: var(--accent); transform: rotate(180deg); }
+.dd-btn:hover { border-color: var(--ink); }
+.dd-list { position: absolute; top: calc(100% + 4px); z-index: 60; min-width: 100%; max-height: 280px; overflow-y: auto; box-sizing: border-box;
+  display: flex; flex-direction: column; padding: 4px 0; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18); }
+.dd[data-align="right"] .dd-list { right: 0; }
+.dd[data-align="left"] .dd-list { left: 0; }
+.dd-list button { border: 0; background: none; padding: 6px 12px; text-align: left; white-space: nowrap; cursor: pointer;
+  font-family: var(--f-mono); font-size: 11.5px; font-weight: 700; color: var(--ink); }
+.dd-list button:hover, .dd-list button:focus-visible { background: var(--sea); color: var(--accent-ink); outline: none; }
+.dd-list button[aria-selected="true"] { background: var(--accent); color: var(--on-accent); }
 .dirbtn { height: 30px; min-width: 30px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; font-size: 13px; }
 .rows { list-style: none; margin: 0; padding: 0; overflow: auto; min-height: 0; flex: 1 1 auto; }
 .row { width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 9px 14px; border: 0; border-bottom: 1px solid var(--line-soft);
@@ -498,8 +511,10 @@ button, input, select { font: inherit; color: inherit; }
     flex-wrap: wrap; overflow: visible;
   }
   .topbar .spacer { display: none; }
-  .topbar-actions { width: 100%; justify-content: space-between; }
+  .topbar-actions { width: 100%; justify-content: flex-end; gap: 6px; }
+  .topbar-actions .live { margin-right: auto; }
   .chip .lbl { display: none; }
+  #themeChip { width: 26px; padding: 0; }
   .crumb { gap: 6px; font-size: 11px; flex-shrink: 0; white-space: nowrap; }
   .topbar-actions { gap: 5px; flex-shrink: 0; white-space: nowrap; }
   .chip, .alerts-btn, .lang-select {
@@ -836,7 +851,7 @@ const I18N = {
     shown: '{n} / {total}', empty: '没有符合条件的节点。', clear: '清除筛选', 'filter.none': '未筛选',
     'state.on': '在线', 'state.warn': '高负载', 'state.off': '离线',
     fleet: '节点总览', 'fleet.total': '总数', 'fleet.on': '在线', 'fleet.warn': '高负载', 'fleet.off': '离线', global: '全球',
-    bw: '全网带宽 · 最近 2 分钟', down: '下行', up: '上行',
+    bw: '带宽 · 2 分钟', down: '下行', up: '上行',
     feed: '告警流', 'feed.active': '{n} 进行中', 'feed.crit': '{n} 严重',
     'a.online': '节点恢复在线', 'conn.wait': '连接中…', 'conn.ok': '● 实时 {n}', 'conn.lost': '连接断开，重连中…', 'none': '—', 'unlimited': '不限', 'a.offline': '节点离线', 'a.cpuHigh': 'CPU 超过 85%（{v}%）', 'a.cpuOk': 'CPU 恢复正常', 'a.ip': 'IP 变更', 'a.spike': '下行突增', 'a.quota': '周期流量达到 {v}%',
     'g.count': '{n} 台', 'g.avg': '均', 'hint.globe': '拖动旋转 · 滚轮缩放 · 点击柱体选中', 'hint.flat': '拖动平移 · 右键旋转 · 滚轮缩放',
@@ -859,7 +874,7 @@ const I18N = {
     shown: '{n} / {total}', empty: '沒有符合條件的節點。', clear: '清除篩選', 'filter.none': '未篩選',
     'state.on': '在線', 'state.warn': '高負載', 'state.off': '離線',
     fleet: '節點總覽', 'fleet.total': '總數', 'fleet.on': '在線', 'fleet.warn': '高負載', 'fleet.off': '離線', global: '全球',
-    bw: '全網頻寬 · 最近 2 分鐘', down: '下行', up: '上行',
+    bw: '頻寬 · 2 分鐘', down: '下行', up: '上行',
     feed: '告警串流', 'feed.active': '{n} 進行中', 'feed.crit': '{n} 嚴重',
     'a.online': '節點恢復上線', 'conn.wait': '連線中…', 'conn.ok': '● 即時 {n}', 'conn.lost': '連線中斷，重新連線中…', 'none': '—', 'unlimited': '不限', 'a.offline': '節點離線', 'a.cpuHigh': 'CPU 超過 85%（{v}%）', 'a.cpuOk': 'CPU 恢復正常', 'a.ip': 'IP 變更', 'a.spike': '下行突增', 'a.quota': '週期流量達到 {v}%',
     'g.count': '{n} 台', 'g.avg': '均', 'hint.globe': '拖曳旋轉 · 滾輪縮放 · 點選柱體', 'hint.flat': '拖曳平移 · 右鍵旋轉 · 滾輪縮放',
@@ -905,7 +920,7 @@ const I18N = {
     shown: '{total} 件中 {n} 件', empty: '条件に一致するノードはありません。', clear: '絞り込みを解除', 'filter.none': '絞り込みなし',
     'state.on': 'オンライン', 'state.warn': '高負荷', 'state.off': 'オフライン',
     fleet: 'フリート', 'fleet.total': '合計', 'fleet.on': 'オンライン', 'fleet.warn': '高負荷', 'fleet.off': 'オフライン', global: '全世界',
-    bw: '総帯域・直近 2 分', down: '下り', up: '上り',
+    bw: '帯域・2 分', down: '下り', up: '上り',
     feed: 'アラート', 'feed.active': '{n} 件発生中', 'feed.crit': '重大 {n}',
     'a.online': 'ノードが復帰', 'conn.wait': '接続中…', 'conn.ok': '● ライブ {n}', 'conn.lost': '切断されました。再接続中…', 'none': '—', 'unlimited': '無制限', 'a.offline': 'ノードがオフライン', 'a.cpuHigh': 'CPU が 85% 超（{v}%）', 'a.cpuOk': 'CPU が正常に復帰', 'a.ip': 'IP が変更', 'a.spike': '下り通信が急増', 'a.quota': '期間トラフィック {v}%',
     'g.count': '{n} 台', 'g.avg': '平均', 'hint.globe': 'ドラッグで回転・ホイールで拡大・バーをクリック', 'hint.flat': 'ドラッグで移動・右ドラッグで傾き・ホイールで拡大',
@@ -1204,6 +1219,66 @@ const langSel = $('#langSel');
 langSel.innerHTML = LANGS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
 langSel.value = lang;
 langSel.addEventListener('change', () => { lang = langSel.value; prefs.lang = lang; savePrefs(); applyI18n(); });
+
+/* Native <select> popups are drawn by the browser and land at the screen edge
+   on Linux / Wayland Chromium (and in DevTools device mode), so both selects
+   are shown as an in-page list. The hidden <select> stays the source of truth:
+   picking an item sets it and fires its usual change event. */
+function enhanceSelect(sel, align) {
+  const label = sel.closest('label');
+  const wrap = document.createElement('div');
+  wrap.className = 'dd';
+  wrap.dataset.align = align;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'dd-btn ' + sel.className;
+  btn.setAttribute('aria-haspopup', 'listbox');
+  btn.setAttribute('aria-expanded', 'false');
+  const srKey = label && label.querySelector('.sr') && label.querySelector('.sr').dataset.i18n;
+  if (srKey) btn.dataset.i18nAria = srKey;
+  const list = document.createElement('div');
+  list.className = 'dd-list';
+  list.setAttribute('role', 'listbox');
+  list.hidden = true;
+  (label || sel).replaceWith(wrap);
+  sel.hidden = true;
+  wrap.append(sel, btn, list);
+  const sync = () => {
+    const o = sel.options[sel.selectedIndex];
+    btn.innerHTML = `<span>${esc(o ? o.text : '')}</span><i aria-hidden="true">▾</i>`;
+  };
+  const close = () => { list.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
+  const open = () => {
+    list.innerHTML = [...sel.options].map((o, i) => `<button type="button" role="option" data-i="${i}" aria-selected="${i === sel.selectedIndex}">${esc(o.text)}</button>`).join('');
+    list.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+    const cur = list.querySelector('[aria-selected="true"]');
+    if (cur) cur.focus();
+  };
+  btn.addEventListener('click', () => (list.hidden ? open() : close()));
+  list.addEventListener('click', (e) => {
+    const item = e.target.closest('[data-i]');
+    if (!item) return;
+    sel.selectedIndex = +item.dataset.i;
+    sel.dispatchEvent(new Event('change'));
+    sync(); close(); btn.focus();
+  });
+  wrap.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !list.hidden) { close(); btn.focus(); return; }
+    if (list.hidden || (e.key !== 'ArrowDown' && e.key !== 'ArrowUp')) return;
+    e.preventDefault();
+    const items = [...list.children];
+    const i = items.indexOf(document.activeElement);
+    items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus();
+  });
+  document.addEventListener('pointerdown', (e) => { if (!wrap.contains(e.target)) close(); });
+  // Options are rebuilt on language change; keep the button text in step.
+  new MutationObserver(sync).observe(sel, { childList: true, subtree: true });
+  sel.addEventListener('change', sync);
+  sync();
+}
+enhanceSelect(langSel, 'right');
+enhanceSelect($('#sortKey'), 'right');
 
 function buildTree() {
   const html = [];
