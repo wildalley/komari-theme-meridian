@@ -1,0 +1,17 @@
+{
+  "name": "komari-theme-nezha-live",
+  "version": "1.0.0",
+  "description": "Nezha-Live industrial blueprint live node map theme for Komari and Cyber Probe",
+  "author": "wildalley",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && python3 scripts/pack.py",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.1.0"
+  }
+}
