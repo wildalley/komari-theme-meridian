@@ -1434,7 +1434,7 @@ function renderFocus() {
   $('#focusName').textContent = n.name;
   const hot = (cond, txt) => (cond ? `<dd class="hot">${txt}</dd>` : `<dd>${txt}</dd>`);
   const loc = `<dt>${esc(t('f.location'))}</dt><dd>${esc(countryName(n.cc))} · ${esc(t('c.' + n.cont))}</dd>
-    <dt>${esc(t('f.geo'))}</dt><dd>${esc(t('f.geoValue'))}</dd><dt>${esc(t('f.ip'))}</dt><dd>${esc(n.ip || t('none'))}</dd>`;
+    <dt>${esc(t('f.geo'))}</dt><dd>${esc(t('f.geoValue'))}</dd>${n.ip ? `<dt>${esc(t('f.ip'))}</dt><dd>${esc(n.ip)}</dd>` : ''}`;
   $('#focusBody').innerHTML = n.off
     ? `<dt>${esc(t('st.off'))}</dt><dd class="hot">${esc(sinceText(n))}</dd>${loc}<dt>${esc(t('f.os'))}</dt><dd>${esc(n.os)}</dd>`
     : `<dt>CPU</dt>${hot(n.cpu >= 85, `${Math.round(n.cpu)}% · ${n.cores} ${esc(t('f.cores'))}`)}
